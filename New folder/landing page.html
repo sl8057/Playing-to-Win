@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bon Appétit! - The Board Game</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #FDF6E3; /* Rice paper color */
+        }
+        h1, h2, h3, h4, h5, h6, .display-font {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .wood-pattern {
+            background-color: #8D6E63;
+            background-image: repeating-linear-gradient(45deg, #795548 25%, transparent 25%, transparent 75%, #795548 75%, #795548), repeating-linear-gradient(45deg, #795548 25%, #8D6E63 25%, #8D6E63 75%, #795548 75%, #795548);
+            background-position: 0 0, 10px 10px;
+            background-size: 20px 20px;
+        }
+        .btn-shadow {
+            box-shadow: 4px 4px 0px 0px rgba(0,0,0,0.8);
+            transition: all 0.1s ease;
+        }
+        .btn-shadow:active {
+            box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.8);
+            transform: translate(4px, 4px);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Icons
+        const IconClock = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>;
+        const IconUsers = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>;
+        const IconSmile = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>;
+        const IconUtensils = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></svg>;
+        const IconHand = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>;
+        const IconCheck = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>;
+        const IconPlay = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>;
+
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+            return (
+                <div className="min-h-screen flex flex-col text-gray-800 overflow-x-hidden">
+                    
+                    {/* Navigation */}
+                    <nav className="sticky top-0 z-50 bg-[#FDF6E3]/95 backdrop-blur-sm border-b-4 border-orange-500 py-4 shadow-sm">
+                        <div className="container mx-auto px-6 flex justify-between items-center">
+                            <div className="text-2xl font-bold tracking-tight text-orange-600 flex items-center gap-2">
+                                <span className="text-3xl">🍚</span> Bon Appétit!
+                            </div>
+                            <div className="hidden md:flex gap-8 font-semibold text-gray-700 items-center">
+                                <a href="#about" className="hover:text-orange-600 transition">About</a>
+                                <a href="#how-to-play" className="hover:text-orange-600 transition">How to Play</a>
+                                <a href="#components" className="hover:text-orange-600 transition">What's Inside</a>
+                                <button className="bg-orange-500 text-white px-6 py-2 rounded-full font-bold btn-shadow hover:bg-orange-600 border-2 border-black">
+                                    Pre-Order
+                                </button>
+                            </div>
+                            {/* Mobile Menu Button */}
+                            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* Hero Section */}
+                    <header className="relative bg-[#FFECB3] pt-20 pb-32 overflow-hidden">
+                        {/* Abstract shapes for background */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                        <div className="absolute top-0 left-0 w-64 h-64 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+                        
+                        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12 relative z-10">
+                            <div className="md:w-1/2 text-center md:text-left">
+                                <div className="inline-block bg-white px-4 py-1 rounded-full text-sm font-bold text-orange-500 mb-4 shadow-sm border border-orange-100">
+                                    New Dexterity Game for Kids 8+
+                                </div>
+                                <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mb-6 leading-tight">
+                                    Flick. Collect. <br/>
+                                    <span className="text-orange-600">Eat.</span>
+                                </h1>
+                                <p className="text-xl text-gray-700 mb-8 leading-relaxed">
+                                    A fast-paced board game where table manners meet table mayhem. Inspired by Korean dining culture.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                                    <button className="bg-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg btn-shadow hover:bg-green-700 border-2 border-black flex items-center justify-center gap-2">
+                                        Buy Now - $25
+                                    </button>
+                                    <button className="bg-white text-gray-900 px-8 py-4 rounded-xl font-bold text-lg btn-shadow hover:bg-gray-50 border-2 border-black flex items-center justify-center gap-2">
+                                        <IconPlay size={20} /> Watch Trailer
+                                    </button>
+                                </div>
+                            </div>
+                            <div className="md:w-1/2 relative">
+                                {/* Visual representation of the game box/setup */}
+                                <div className="bg-white p-4 rounded-3xl shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition duration-500">
+                                    <div className="bg-orange-50 rounded-2xl overflow-hidden aspect-video flex items-center justify-center relative">
+                                        {/* User's uploaded Game Art */}
+                                        <img 
+                                            src="box%20design_front_final.png" 
+                                            onError={(e) => {
+                                                e.target.onerror = null; 
+                                                e.target.src="https://via.placeholder.com/800x600/FFF8E1/EA580C?text=Place+Image+Here";
+                                            }}
+                                            alt="Bon Appétit Game Box Art" 
+                                            className="absolute inset-0 w-full h-full object-contain"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Quick Stats Banner */}
+                    <div className="bg-orange-600 text-white py-8 wood-pattern border-y-4 border-black">
+                        <div className="container mx-auto px-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-orange-400/50">
+                                <div className="flex flex-col items-center gap-2 p-2">
+                                    <IconUsers size={32} />
+                                    <span className="text-2xl font-bold">2 Players</span>
+                                    <span className="text-orange-200 text-sm">Perfect for duels</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 p-2">
+                                    <IconClock size={32} />
+                                    <span className="text-2xl font-bold">15 Minutes</span>
+                                    <span className="text-orange-200 text-sm">Fast-paced fun</span>
+                                </div>
+                                <div className="flex flex-col items-center gap-2 p-2">
+                                    <IconSmile size={32} />
+                                    <span className="text-2xl font-bold">Age 8+</span>
+                                    <span className="text-orange-200 text-sm">Kid friendly strategy</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Introduction / About */}
+                    <section id="about" className="py-20 container mx-auto px-6">
+                        <div className="text-center max-w-3xl mx-auto mb-16">
+                            <h2 className="text-4xl font-bold text-gray-900 mb-6">A Seat at the Table</h2>
+                            <p className="text-lg text-gray-600 leading-relaxed">
+                                <strong>Bon Appétit! (Jal Meokgessumnida!)</strong> isn't just a board game; it's a culinary duel. 
+                                Set on a beautifully illustrated board representing a traditional East Asian dining table, 
+                                players must flick a shared "Plate Token" to determine their fate.
+                            </p>
+                        </div>
+                        
+                        <div className="grid md:grid-cols-2 gap-12 items-center">
+                            <div className="bg-white p-8 rounded-3xl border-2 border-gray-200 shadow-xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-bl-xl border-l-2 border-b-2 border-white">DEXTERITY</div>
+                                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 text-blue-600 group-hover:scale-110 transition">
+                                    <IconHand size={32} />
+                                </div>
+                                <h3 className="text-2xl font-bold mb-3">The "Flick & Pick"</h3>
+                                <p className="text-gray-600">
+                                    The core of the game is the <strong>Shared Plate Token</strong>. Flick it across the board!
+                                    Where it lands decides if you draw delicious food or discard your leftovers.
+                                </p>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-3xl border-2 border-gray-200 shadow-xl relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 bg-green-400 text-black text-xs font-bold px-3 py-1 rounded-bl-xl border-l-2 border-b-2 border-white">STRATEGY</div>
+                                <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mb-6 text-red-600 group-hover:scale-110 transition">
+                                    <IconUtensils size={32} />
+                                </div>
+                                <h3 className="text-2xl font-bold mb-3">Table Manners Twist</h3>
+                                <p className="text-gray-600">
+                                    Precision matters! If your token lands on a border, <strong>your opponent chooses your fate.</strong>
+                                    Will they force you to fill your hand when you're trying to empty it?
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* How to Win Section */}
+                    <section id="how-to-play" className="py-20 bg-[#fff8e1]">
+                        <div className="container mx-auto px-6">
+                            <h2 className="text-4xl font-bold text-center mb-16">Two Ways to Win</h2>
+                            
+                            <div className="grid md:grid-cols-2 gap-8">
+                                {/* Strategy A */}
+                                <div className="bg-white rounded-3xl p-8 border-4 border-green-500 shadow-lg relative">
+                                    <div className="absolute -top-6 left-8 bg-green-500 text-white px-6 py-2 rounded-full font-bold border-2 border-black">Strategy A</div>
+                                    <h3 className="text-3xl font-bold mt-4 mb-4 text-green-700">The Feast</h3>
+                                    <p className="mb-6 text-gray-700">Collect cards to complete valid meal sets. A set needs:</p>
+                                    <ul className="space-y-3">
+                                        <li className="flex items-center gap-3 bg-green-50 p-3 rounded-lg">
+                                            <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg">🍚</span>
+                                            <span className="font-bold text-gray-800">Rice</span>
+                                        </li>
+                                        <li className="flex items-center gap-3 bg-red-50 p-3 rounded-lg">
+                                            <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg">🥘</span>
+                                            <span className="font-bold text-gray-800">Soup</span>
+                                        </li>
+                                        <li className="flex items-center gap-3 bg-blue-50 p-3 rounded-lg">
+                                            <span className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg">🥒</span>
+                                            <span className="font-bold text-gray-800">Side Dish</span>
+                                        </li>
+                                    </ul>
+                                    <div className="mt-6 text-center font-bold text-green-700 bg-green-100 py-3 rounded-xl">
+                                        First to 3 Sets Wins!
+                                    </div>
+                                </div>
+
+                                {/* Strategy B */}
+                                <div className="bg-white rounded-3xl p-8 border-4 border-orange-500 shadow-lg relative">
+                                    <div className="absolute -top-6 left-8 bg-orange-500 text-white px-6 py-2 rounded-full font-bold border-2 border-black">Strategy B</div>
+                                    <h3 className="text-3xl font-bold mt-4 mb-4 text-orange-700">The Clean Plate</h3>
+                                    <p className="mb-6 text-gray-700">
+                                        Not hungry? Play defensively! Use your dexterity skills to land on "Discard" zones.
+                                    </p>
+                                    <div className="bg-orange-50 p-6 rounded-xl border-2 border-dashed border-orange-200 mb-6">
+                                        <div className="flex justify-center gap-2 mb-2">
+                                            <div className="w-12 h-16 bg-white border border-gray-300 rounded shadow-sm"></div>
+                                            <div className="w-12 h-16 bg-white border border-gray-300 rounded shadow-sm"></div>
+                                            <div className="text-gray-400 self-center">➔</div>
+                                            <div className="w-12 h-16 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-400">Empty</div>
+                                        </div>
+                                    </div>
+                                    <div className="mt-6 text-center font-bold text-orange-700 bg-orange-100 py-3 rounded-xl">
+                                        First to Empty Hand Wins!
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-12 text-center">
+                                <p className="text-2xl font-bold text-gray-700 italic">
+                                    "When you win, you must shout <span className="text-orange-600 not-italic">잘 먹겠습니다!</span>"
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Components / Box Contents */}
+                    <section id="components" className="py-20 container mx-auto px-6">
+                        <div className="bg-gray-900 text-white rounded-[3rem] p-12 relative overflow-hidden">
+                            <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center">
+                                <div className="md:w-1/2">
+                                    <h2 className="text-4xl font-bold mb-6 text-yellow-400">What's Inside the Box?</h2>
+                                    <ul className="space-y-4 text-lg text-gray-300">
+                                        <li className="flex items-center gap-4">
+                                            <IconCheck className="text-green-400" /> 1x Shared Wooden-Style Board
+                                        </li>
+                                        <li className="flex items-center gap-4">
+                                            <IconCheck className="text-green-400" /> 1x Weighted "Plate" Token
+                                        </li>
+                                        <li className="flex items-center gap-4">
+                                            <IconCheck className="text-green-400" /> 28x Illustrated Food Cards
+                                        </li>
+                                        <li className="flex items-center gap-4">
+                                            <IconCheck className="text-green-400" /> 1x Easy-Start Rulebook
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div className="md:w-1/2 flex justify-center">
+                                    {/* Abstract representation of components spread out */}
+                                    <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
+                                        <div className="bg-orange-100 aspect-square rounded-2xl rotate-3"></div>
+                                        <div className="bg-red-100 aspect-square rounded-2xl -rotate-2"></div>
+                                        <div className="bg-green-100 aspect-square rounded-2xl -rotate-6"></div>
+                                        <div className="bg-blue-100 aspect-square rounded-2xl rotate-6"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="bg-gray-50 border-t border-gray-200 pt-16 pb-8">
+                        <div className="container mx-auto px-6">
+                            <div className="flex flex-col md:flex-row justify-between items-center mb-12">
+                                <div className="text-3xl font-bold text-gray-800 mb-6 md:mb-0">
+                                    Bon Appétit!
+                                    <span className="block text-sm text-gray-500 font-normal mt-1">Designed with ❤️ and 🍚</span>
+                                </div>
+                                <div className="flex gap-6">
+                                    <a href="#" className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-orange-500 hover:text-white transition">IG</a>
+                                    <a href="#" className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-orange-500 hover:text-white transition">X</a>
+                                    <a href="#" className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center hover:bg-orange-500 hover:text-white transition">TT</a>
+                                </div>
+                            </div>
+                            <div className="text-center text-gray-400 text-sm">
+                                <p>Warning: Choking hazard - small parts. Not suitable for children under 3 years.</p>
+                                <p className="mt-2">© 2025 Bon Appétit Games. All rights reserved.</p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
